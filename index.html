@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>見つけましたね</title>
+    <style>
+        /* ベースとなるスタイル（スマホファースト） */
+        body { 
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            background-color: #f4f7f6; /* 薄いグレーの背景 */
+            color: #333;
+        }
+
+        /* 占いメッセージを表示するカードのデザイン */
+        .card { 
+            background: white; 
+            padding: 2.5rem 2rem; 
+            border-radius: 24px; /* 角を丸く */
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); /* 柔らかい影 */
+            text-align: center; 
+            width: 85%; 
+            max-width: 400px; /* PCで見ても大きくなりすぎないように */
+            box-sizing: border-box;
+        }
+
+        /* 占いメッセージのテキストスタイル */
+        h1 { 
+            font-size: 1.4rem; /* スマホで読みやすい大きさ */
+            line-height: 1.8; /* 行間を広げて読みやすく */
+            font-weight: 600;
+            margin: 0;
+            min-height: 100px; /* メッセージがない時の高さを確保 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 「もう一度占う」ボタンのデザイン */
+        button { 
+            margin-top: 2.5rem; 
+            padding: 12px 24px; 
+            border: none; 
+            background-color: #3498db; /* 爽やかな青 */
+            color: white; 
+            border-radius: 50px; /* 丸いボタン */
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer; 
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
+            transition: background-color 0.2s, transform 0.1s;
+            -webkit-tap-highlight-color: transparent; /* スマホのタップ時の色を消す */
+        }
+
+        /* ボタンを押した時の効果 */
+        button:active {
+            background-color: #2980b9;
+            transform: translateY(2px); /* 少し沈む */
+            box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1 id="fortune">読み込み中...</h1>
+        <button onclick="location.reload()">もう一度占う</button>
+    </div>
+
+    <script>
+        // ご提示いただいたメッセージリスト（HTMLの改行タグ<br>を追加）
+        const fortunes = [
+            "今日の運勢：<br>まあまあ。<br>冷蔵庫を開けても<br>特に奇跡は起きません。",
+            "ラッキーアイテム：<br>使ってないアプリ<br>（消すと容量アップ）",
+            "あなたの運勢は<br>「Wi-Fi弱め」レベル。<br>場所を変えましょう。",
+            "大金運あり！<br>…小銭レベルで。",
+            "吉。<br>だけど油断すると<br>「小吉」に戻ります。",
+            "運気上昇中。<br>ただしエスカレーター並みのスピードです。",
+            "今日のラッキーカラー：<br>昨日と同じ服の色",
+            "今日の運勢は絶好調！<br>…の気配だけあります。",
+            "今日は<br>「なんとなくいい日」です。<br>理由は特にありません。",
+            "ラッキー行動：<br>とりあえず水を飲む",
+            "今日の運勢：<br>思ったより悪くない<br>（期待値が低いだけ）",
+            "あなたの直感、<br>今日は3割くらい<br>当たります。",
+            "小さな幸せあり。<br>ただし豆粒レベル。",
+            "恋愛運急上昇！<br>…ただし相手は現れません。",
+            "運気は上昇中。<br>ただし途中で休憩します。",
+            "今日はモテる日！<br>…ペットか店員さんに。",
+            "今日は<br>「あとでやろう」が<br>増えがちです。<br>気をつけて。",
+            "運勢：普通。<br>でも普通って実はすごい。",
+            "今日のあなた、<br>ちょっとだけ<br>運がいい気がする<br>顔をしています。",
+            "ラッキー方角：<br>コンビニの方向",
+            "運気は安定。<br>つまり<br>ネタには<br>なりにくい日です。",
+            "運命の出会いあり！<br>…新しいアプリかも。",
+            "あなたの魅力、<br>今日は3%増量中。<br>気づかれませんが。",
+            "吉。<br>理由は<br>占い師もよく分かっていません。",
+            "今日のラッキーイベント：<br>信号がちょうど青",
+            "運勢は<br>「あと一歩でいい感じ」<br>止まりです。",
+            "今日のあなた、<br>ツッコミ待ちの<br>行動をしがちです。",
+            "ラッキーアイテム：<br>なんとなく持ってる<br>レシート",
+            "運気上昇。<br>ただし<br>誰も気付きません。",
+            "今日のテーマ：<br>「まあいっか」",
+            "大成功の予感！<br>…夢の中で。",
+            "あなたの未来、<br>今のところ<br>普通に進行中です。",
+            "今日のラッキー数字：<br>特に意味はないけど<br>「3」てことで。",
+            "運気は微増。<br>誤差の範囲です。",
+            "今日は<br>「なんか忘れてる気がする日」<br>です。",
+            "今日は褒められる日！<br>…自分で自分を。",
+            "吉。<br>だけど調子に乗ると<br>すぐ戻ります。",
+            "今日のあなた、<br>なぜか<br>ちょっとだけ早く歩きます。",
+            "運勢：<br>静かに良い。<br>静かすぎて気づきません。",
+            "小さなラッキーあり。<br>ただし<br>気づいたら終わってます。",
+            "今日の運気：<br>コーヒー1杯分くらい上昇",
+            "ラッキーアイテム：<br>ポケットの中のホコリ",
+            "誰かに必要とされます！<br>…たぶん宅配の人に。",
+            "運勢：<br>まあまあ。<br>つまり生きててえらい。",
+            "今日のキーワード：<br>「あとでいいや」",
+            "吉。<br>特にドラマは起きませんが平和です。",
+            "運気：<br>じわじわ上がるが<br>気づかないタイプ",
+            "今日のラッキー行動：<br>深呼吸（思い出したらでOK）",
+            "あなたの今日、<br>60点くらい。<br>でも十分です。",
+            "今日はうまくいく！<br>…こともあるでしょう。",
+            "今日はなんでもできる！<br>…やればだけど。",
+            "期待以上の結果に！<br>…期待が低ければ。",
+            "今日のあなたは無敵！<br>…の気分。",
+            "今日は特にツイてる！<br>…気のせいかもしれませんが。",
+            "誰かがあなたを見ています！<br>…防犯カメラで。",
+            "今日も最高！<br>…と言っておきましょう。"
+        ];
+
+        // ページ読み込み時に実行される処理
+        window.onload = function() {
+            // 配列からランダムに1つ選ぶ（Math.randomを使用）
+            const result = fortunes[Math.floor(Math.random() * fortunes.length)];
+            
+            // 選ばれたメッセージを画面（h1タグ）に表示
+            document.getElementById('fortune').innerHTML = result;
+        };
+    </script>
+</body>
+</html>
